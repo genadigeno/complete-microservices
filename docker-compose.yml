@@ -1,0 +1,89 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.9-alpine
+    networks:
+      - microservice_network
+    volumes:
+      - "C:/Users/GENO/Desktop/docker_workspace/rabbitmq-vol:/var/lib/rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  service-discovery:
+    build: ./service-discovery
+    container_name: service-discovery
+    networks:
+      - microservice_network
+    ports:
+      - "8761:8761"
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    networks:
+      - microservice_network
+    ports:
+      - "8888:8888"
+    depends_on:
+      - service-discovery
+      - rabbitmq
+    environment:
+      - EUREKA_URL=http://service-discovery:8761/eureka
+      - RABBIT_HOST=rabbitmq
+  data-stream: #როცა ჩაიტვირთება ამის კონტეინერს რესტარტი უნდა!
+    build: ./data-stream
+    container_name: data-stream-service
+    networks:
+      - microservice_network
+    ports:
+      - "8280:8280"
+    volumes:
+      - "C:/Users/GENO/Desktop/docker_workspace/java-logs:/app/logs"
+    depends_on:
+      - rabbitmq
+      - service-discovery
+      - config-server
+    environment:
+      - EUREKA_URL=http://service-discovery:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - RABBIT_HOST=rabbitmq
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    networks:
+      - microservice_network
+    ports:
+      - "8080:8080"
+    volumes:
+      - "C:/Users/GENO/Desktop/docker_workspace/java-logs:/app/logs"
+    depends_on:
+      - service-discovery
+      - rabbitmq
+    environment:
+      - EUREKA_URL=http://service-discovery:8761/eureka/
+      - RABBIT_HOST=rabbitmq
+  ui:
+    build: ./ui
+#    container_name: ui-service-1
+    networks:
+      - microservice_network
+    ports:
+#      - "8181:8181"
+#      Multiple container in a service using `--scale ui=2` command option
+      - "8181"
+    volumes:
+      - "C:/Users/GENO/Desktop/docker_workspace/java-logs:/app/logs"
+    depends_on:
+      - service-discovery
+      - rabbitmq
+      - config-server
+    environment:
+      - EUREKA_URL=http://service-discovery:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - RABBIT_HOST=rabbitmq
+
+networks:
+  microservice_network:
+    driver: bridge

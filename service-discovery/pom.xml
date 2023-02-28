@@ -32,6 +32,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -46,6 +47,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>service-discovery</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
