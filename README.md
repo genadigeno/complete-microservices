@@ -6,4 +6,4 @@ Stock Exchange სისტემის იმიტაცია:
 * ცვლილებები ცოცხალ რეჟიმში გადაეცემა ui-service -ს და <img src="https://www.vectorlogo.zone/logos/rabbitmq/rabbitmq-ar21.png" height="30" /> **RabbitMQ**-ს გამოყენებით და გამოაქვს ეკრანზე
 
 ---------------------
-<img src="https://flagcdn.com/h20/se.png" height="25" />
+<img src="https://flagcdn.com/h20/se.png" height="20" /> [Klicka här för att se en beskrivning på svenska](http://localhost/)
