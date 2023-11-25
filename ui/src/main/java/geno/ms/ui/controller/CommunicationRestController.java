@@ -1,16 +1,15 @@
 package geno.ms.ui.controller;
 
 import geno.ms.ui.controller.message.ExtendedMessage;
+import geno.ms.ui.controller.message.MessageBody;
 import geno.ms.ui.feign.DataStreamClient;
 import geno.ms.ui.feign.DataStreamModel;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -50,15 +49,14 @@ public class CommunicationRestController {
     }
 
     @PostMapping("/send")
-    public String send(){
-        String msg = "msg";
-        ExtendedMessage extendedMessage = new ExtendedMessage(msg.getBytes(StandardCharsets.UTF_8));
+    public String send(@RequestBody @Validated MessageBody body){
+        ExtendedMessage message = new ExtendedMessage(body.getMessage().getBytes(StandardCharsets.UTF_8));
 
         Map<String, String> metaData = new HashMap<>();
-        metaData.put("author", "Geno Mumladze");
-        extendedMessage.setMetaData(metaData);
+        metaData.put("author", body.getAuthor());
+        message.setMetaData(metaData);
 
-        rabbitTemplate.convertAndSend(exchange, routingKey, extendedMessage);//send a message to queue
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);//send a message to queue
 
         System.out.println("message sent");
         return "sent";

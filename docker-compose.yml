@@ -32,6 +32,7 @@ services:
     environment:
       - EUREKA_URL=http://service-discovery:8761/eureka
       - RABBIT_HOST=rabbitmq
+      - GIT_URL=https://github.com/genadigeno/microservice-config-server.git
   data-stream: #როცა ჩაიტვირთება ამის კონტეინერს რესტარტი უნდა!
     build: ./data-stream
     container_name: data-stream-service
@@ -44,6 +45,25 @@ services:
     depends_on:
       - rabbitmq
       - service-discovery
+      - config-server
+    environment:
+      - EUREKA_URL=http://service-discovery:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - RABBIT_HOST=rabbitmq
+  ui:
+    build: ./ui
+#    container_name: ui-service-1
+    networks:
+      - microservice_network
+    ports:
+      - "8181:8181"
+#      Multiple container in a service using `--scale ui=2` command option
+#      - "8181"
+    volumes:
+      - "C:/Users/GENO/Desktop/docker_workspace/java-logs:/app/logs"
+    depends_on:
+      - service-discovery
+      - rabbitmq
       - config-server
     environment:
       - EUREKA_URL=http://service-discovery:8761/eureka/
@@ -63,25 +83,6 @@ services:
       - rabbitmq
     environment:
       - EUREKA_URL=http://service-discovery:8761/eureka/
-      - RABBIT_HOST=rabbitmq
-  ui:
-    build: ./ui
-#    container_name: ui-service-1
-    networks:
-      - microservice_network
-    ports:
-#      - "8181:8181"
-#      Multiple container in a service using `--scale ui=2` command option
-      - "8181"
-    volumes:
-      - "C:/Users/GENO/Desktop/docker_workspace/java-logs:/app/logs"
-    depends_on:
-      - service-discovery
-      - rabbitmq
-      - config-server
-    environment:
-      - EUREKA_URL=http://service-discovery:8761/eureka/
-      - CONFIG_SERVER_URL=http://config-server:8888
       - RABBIT_HOST=rabbitmq
 
 networks:
